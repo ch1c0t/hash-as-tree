@@ -48,7 +48,7 @@ class Hash
 
         def to_h
           if key
-            if value.is_a? Hash
+            if value.is_a?(Hash) && (not value.empty?)
               { key => children.map(&:to_h).reduce(&:merge) }
             else
               { key => value }
