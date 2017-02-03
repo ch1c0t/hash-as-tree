@@ -28,8 +28,10 @@ class Hash
             if passed_node == returned_node
               passed_node.children.each &[nodes, :push]
             else
-              passed_node.parent.value.delete passed_node.key
-              passed_node.parent.value[returned_node.key] = returned_node.value
+              if parent = passed_node.parent
+                parent.value.delete passed_node.key
+                parent.value[returned_node.key] = returned_node.value
+              end
               returned_node.children.each &[nodes, :push]
             end
           end
