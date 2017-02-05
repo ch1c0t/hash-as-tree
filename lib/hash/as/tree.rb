@@ -74,6 +74,10 @@ class Hash
             []
           end
         end
+
+        def to_a
+          [key, value]
+        end
       end
     end
   end

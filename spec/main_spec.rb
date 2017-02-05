@@ -37,4 +37,18 @@ describe do
 
     assert { rewritten[:query]['first'] == 'oneone' }
   end
+
+  it do
+    hash = {
+      path: '/path'
+    }
+
+    hash.traverse do |node|
+      if node.key == :path
+        key, value = *node
+        assert { key == :path }
+        assert { value == '/path' }
+      end
+    end
+  end
 end
