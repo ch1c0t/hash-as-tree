@@ -51,4 +51,20 @@ describe do
       end
     end
   end
+
+  it do
+    hash =  {
+      path: '/path',
+      query: {
+        'first' => 'one',
+        'second' => 'two'
+      }
+    }
+
+    rewritten = hash.rewrite do |node|
+      node.with key: node.key.to_s
+    end
+
+    assert { rewritten['query']['first'] == 'one' }
+  end
 end
