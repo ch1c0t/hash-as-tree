@@ -3,6 +3,10 @@ require 'to_proc/all'
 class Hash
   module As
     module Tree
+      COMBINATOR = -> hash, key do
+        hash[key] = Hash.new &COMBINATOR
+      end
+
       refine Hash do
         def traverse
           return to_enum(__method__) unless block_given?
@@ -18,8 +22,13 @@ class Hash
         end
 
         def rewrite
+          hash = dup
+          hash.default_proc = COMBINATOR
+
           nodes, root_node = Queue.new, (Node.new value: self)
-          nodes.push root_node
+          each do |key, value|
+            nodes.push Node.new key: key, value: value, parent: root_node
+          end
 
           until nodes.empty?
             passed_node = nodes.pop
@@ -28,15 +37,19 @@ class Hash
             if passed_node == returned_node
               passed_node.children.each &[nodes, :push]
             else
-              if parent = passed_node.parent
-                parent.value.delete passed_node.key
-                parent.value[returned_node.key] = returned_node.value
-              end
+              path = passed_node.parent.path
+              cursor = if path.empty?
+                         hash
+                       else
+                         hash.dig *path
+                       end
+              cursor[returned_node.key] = returned_node.value
               returned_node.children.each &[nodes, :push]
             end
           end
 
-          root_node.to_h
+          hash.default_proc = default_proc
+          hash
         end
       end
 
@@ -46,16 +59,8 @@ class Hash
         end
         attr_accessor :value, :key, :parent
 
-        def to_h
-          if key
-            if value.is_a?(Hash) && (not value.empty?)
-              { key => children.map(&:to_h).reduce(&:merge) }
-            else
-              { key => value }
-            end
-          else
-            children.map(&:to_h).reduce(&:merge)
-          end
+        def path
+          @path ||= [*parent&.path, *key]
         end
 
         def with **kwargs
