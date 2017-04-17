@@ -44,7 +44,6 @@ class Hash
                          hash.dig *path
                        end
               cursor[returned_node.key] = returned_node.value
-              returned_node.children.each &[nodes, :push]
             end
           end
 
