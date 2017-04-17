@@ -11,8 +11,7 @@ class Hash
         def traverse
           return to_enum(__method__) unless block_given?
 
-          nodes = Queue.new
-          nodes.push Node.new value: self
+          nodes = initialize_nodes
 
           until nodes.empty?
             current_node = nodes.pop
@@ -25,10 +24,7 @@ class Hash
           hash = dup
           hash.default_proc = COMBINATOR
 
-          nodes, root_node = Queue.new, (Node.new value: self)
-          each do |key, value|
-            nodes.push Node.new key: key, value: value, parent: root_node
-          end
+          nodes = initialize_nodes
 
           until nodes.empty?
             passed_node = nodes.pop
@@ -49,6 +45,14 @@ class Hash
 
           hash.default_proc = default_proc
           hash
+        end
+
+        def initialize_nodes
+          nodes, root_node = Queue.new, (Node.new value: self)
+          each do |key, value|
+            nodes.push Node.new key: key, value: value, parent: root_node
+          end
+          nodes
         end
       end
 
