@@ -9,7 +9,7 @@ class Hash
 
       refine Hash do
         def traverse
-          return to_enum(__method__) unless block_given?
+          return to_enum __method__ unless block_given?
 
           nodes = initialize_nodes
 
