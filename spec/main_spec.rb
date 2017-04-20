@@ -67,4 +67,21 @@ describe do
 
     assert { rewritten['query']['first'] == 'one' }
   end
+
+  it 'does not modify initial hash' do
+    hash =  {
+      path: '/path',
+      query: {
+        'first' => 'one',
+        'second' => 'two'
+      }
+    }
+
+    hash.rewrite do |node|
+      node.with key: node.key.to_s
+    end
+
+    assert { hash['query'] == nil }
+    assert { hash[:query]['first'] == 'one' }
+  end
 end
